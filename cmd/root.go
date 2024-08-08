@@ -64,6 +64,7 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.Flags().BoolVarP(&vimfix.Quiet, "quiet", "q", false, "no echo stdout")
+	rootCmd.Flags().BoolVarP(&vimfix.Verbose, "verbose", "v", false, "output diagnostics to stderr")
 	rootCmd.Flags().BoolVarP(&vimfix.IgnoreStderr, "ignore_stderr", "E", false, "ignore stderr when scanning")
 	rootCmd.Flags().BoolVarP(&vimfix.IgnoreStdout, "ignore_stdout", "O", false, "ignore stdout when scanning")
 	rootCmd.Flags().BoolVarP(&vimfix.LocalizePaths, "localize", "l", false, "localize source file path in error output")

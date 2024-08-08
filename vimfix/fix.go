@@ -14,6 +14,7 @@ import (
 )
 
 var Quiet bool
+var Verbose bool
 var IgnoreStderr bool
 var IgnoreStdout bool
 var LocalizePaths bool
@@ -116,15 +117,28 @@ func genericErrors(lines []string) []string {
 func blackErrors(lines []string) []string {
     re, err := regexp.Compile("^error: cannot format\\s(.*)")
     cobra.CheckErr(err)
+    if Verbose {
+	fmt.Fprintf(os.Stderr, "BEGIN blackErrors\n")
+    }
 
     elines := []string{}
 
     for _, line := range(lines) {
 
+	if Verbose {
+	    fmt.Fprintf(os.Stderr, "line: '%s'\n", line)
+	}
+
 	subs := re.FindStringSubmatch(line)
 	if subs != nil && len(subs) > 1 {
+	    if Verbose {
+		fmt.Fprintf(os.Stderr, "  subs: %v\n", subs)
+	    }
 	    line = subs[1]
 	    parts := strings.Split(line, ":")
+	    if Verbose {
+		fmt.Fprintf(os.Stderr, "  parts: %v\n", parts)
+	    }
 	    file := strings.TrimSpace(parts[0])
 	    emsg := strings.TrimSpace(parts[1])
 	    row, err := strconv.Atoi(strings.TrimSpace(parts[2]))
@@ -132,9 +146,21 @@ func blackErrors(lines []string) []string {
 	    col, err := strconv.Atoi(strings.TrimSpace(parts[3]))
 	    cobra.CheckErr(err)
 	    source := strings.TrimSpace(parts[4])
-            line = fmt.Sprintf("%s:%d:%d: [black]%s %s", file, row, col, emsg, source)
+
+            line = fmt.Sprintf("%s:%d:%d: [black] %s %s", file, row, col, emsg, source)
+	    if Verbose {
+		fmt.Fprintf(os.Stderr, "    file: '%s'\n", file)
+		fmt.Fprintf(os.Stderr, "    emsg: '%s'\n", emsg)
+		fmt.Fprintf(os.Stderr, "     row: '%d'\n", row)
+		fmt.Fprintf(os.Stderr, "     col: '%d'\n", col)
+		fmt.Fprintf(os.Stderr, "  source: '%s'\n", source)
+		fmt.Fprintf(os.Stderr, "   eline: '%s'\n", line)
+	    }
             elines = append(elines, line)
         }
+    }
+    if Verbose {
+	fmt.Fprintf(os.Stderr, "END blackErrors\n")
     }
     return elines
 }
@@ -169,24 +195,28 @@ func tryQuickfix(elines []string) int {
 var formats = map[string]func([]string) []string{
         "forge": forgeErrors,
         "black": blackErrors,
+	"generic": genericErrors,
 }
 
-func getFormatter(cmd, fmt string) func([]string)[]string {
-    if fmt == "" {
-        return genericErrors
+func getFormatter(command string) func([]string)[]string {
+
+    formatter := "generic"
+
+    // override command with --format option
+    if ErrorFormat != "" {
+	command = ErrorFormat
     }
 
-    fields := strings.Split(cmd, " ")
-    if len(fields) == 0 {
-        return genericErrors
+    fmtFunc, ok := formats[command]
+    if !ok {
+	formatter = "generic"
+	fmtFunc = formats[formatter]
     }
 
-    for key, formatter := range formats {
-        if key == fields[0] {
-            return formatter
-        }
+    if Verbose {
+	fmt.Fprintf(os.Stderr, "command: %s, formatter: %s\n", command, formatter)
     }
-    return genericErrors
+    return fmtFunc
 }
 
 func strippedLines(buf []byte, stripper func(string) string) []string {
@@ -230,7 +260,7 @@ func Fix(command string, args... string) int {
         stripper = stripANSI
     }
 
-    formatter := getFormatter(command, ErrorFormat)
+    formatter := getFormatter(command)
 
     elines := []string{}
     if ! IgnoreStdout {
