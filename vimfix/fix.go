@@ -180,7 +180,17 @@ func tryQuickfix(elines []string) int {
         }
         err := os.WriteFile(quickfixFile, []byte(strings.Join(elines, "\n")), 0600)
         cobra.CheckErr(err)
-        cmd := exec.Command("vim", "-n", "-q", quickfixFile)
+
+        editor, ok := os.LookupEnv("EDITOR")
+        if !ok {
+            editor, ok = os.LookupEnv("VISUAL")
+            if ! ok {
+                editor = "vim"
+            }
+        }
+        fmt.Printf("calling %s...\n", editor)
+
+        cmd := exec.Command(editor, "-n", "-q", quickfixFile)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

@@ -42,7 +42,7 @@ run a compile or lint command, scanning the output output for errors suitable fo
 `,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-	    // fleem = "foo"
+	    //fleem = "foo"
 	    os.Exit(vimfix.Fix(args[0], args[1:]...))
 	},
 }
