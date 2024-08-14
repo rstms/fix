@@ -165,6 +165,26 @@ func blackErrors(lines []string) []string {
     return elines
 }
 
+// rgrep -Hn installation_timeout
+//
+// roles/vmware-instance/tasks/netboot_wait.yml:18:  async: "{{ installation_timeout }}"
+
+func rgrepErrors(lines []string) []string {
+    elines := []string{}
+    for _, line := range lines {
+	parts := strings.Split(line, ":")
+	if len(parts) > 2 {
+	    file := parts[0]
+	    row := parts[1]
+	    col := 1
+	    pos := len(file) + len(row) + 2
+	    msg := line[pos:]
+	    line = fmt.Sprintf("%s:%s:%d:%s", file, row, col, msg)
+	    elines = append(elines, line)
+	}
+    }
+    return elines
+}
 
 func tryQuickfix(elines []string) int {
     confirmed, err := util.Confirm("fix")
@@ -205,6 +225,7 @@ func tryQuickfix(elines []string) int {
 var formats = map[string]func([]string) []string{
         "forge": forgeErrors,
         "black": blackErrors,
+	"rgrep": rgrepErrors,
 	"generic": genericErrors,
 }
 
@@ -218,7 +239,9 @@ func getFormatter(command string) func([]string)[]string {
     }
 
     fmtFunc, ok := formats[command]
-    if !ok {
+    if ok {
+	formatter = command
+    } else {
 	formatter = "generic"
 	fmtFunc = formats[formatter]
     }
@@ -238,7 +261,19 @@ func strippedLines(buf []byte, stripper func(string) string) []string {
     return stripped
 }
 
+func customizeArgs(command string, args... string) []string {
+    switch command {
+    case "rgrep":
+	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
+	    args = append([]string{"-Hn"}, args...)
+	}
+    }
+    return args
+}
+
 func Fix(command string, args... string) int {
+
+    args = customizeArgs(command, args...)
 
     cmd := exec.Command(command, args...)
     var obuf bytes.Buffer
