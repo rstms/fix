@@ -1,3 +1,6 @@
 fix
 fix.exe
 err
+*.new
+limbo
+notes

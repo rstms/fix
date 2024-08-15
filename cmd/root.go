@@ -31,11 +31,12 @@ import (
 )
 
 var cfgFile string
-
+var version = "1.0.1"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "fix",
+	Version: version,
 	Short: "vim quickfix compiler output",
 	Long: `
 run a compile or lint command, scanning the output output for errors suitable for input to vim quickfix"
@@ -65,10 +66,11 @@ func init() {
 
 	rootCmd.Flags().BoolVarP(&vimfix.Quiet, "quiet", "q", false, "no echo stdout")
 	rootCmd.Flags().BoolVarP(&vimfix.Verbose, "verbose", "v", false, "output diagnostics to stderr")
-	rootCmd.Flags().BoolVarP(&vimfix.IgnoreStderr, "ignore_stderr", "E", false, "ignore stderr when scanning")
-	rootCmd.Flags().BoolVarP(&vimfix.IgnoreStdout, "ignore_stdout", "O", false, "ignore stdout when scanning")
+	rootCmd.Flags().BoolVarP(&vimfix.IgnoreStderr, "ignore-stderr", "E", false, "ignore stderr when scanning")
+	rootCmd.Flags().BoolVarP(&vimfix.IgnoreStdout, "ignore-stdout", "O", false, "ignore stdout when scanning")
 	rootCmd.Flags().BoolVarP(&vimfix.LocalizePaths, "localize", "l", false, "localize source file path in error output")
-	rootCmd.Flags().BoolVarP(&vimfix.NoStripANSI, "no_strip", "S", false, "do not strip ANSI codes")
+	rootCmd.Flags().BoolVarP(&vimfix.NoStripANSI, "no-strip", "S", false, "do not strip ANSI codes")
+	rootCmd.Flags().BoolVarP(&vimfix.PrioritizeExitCode, "prioritize-exit-code", "x", false, "suppress prompt when command exits 0")
 	rootCmd.Flags().StringVarP(&vimfix.ErrorFormat, "format", "f", "", "error format")
 	rootCmd.Flags().StringVarP(&vimfix.OutputFile, "output", "o", "", "output to file")
 	viper.BindPFlag("format", rootCmd.Flags().Lookup("format"))
