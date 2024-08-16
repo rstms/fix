@@ -25,3 +25,6 @@ install:
 
 uninstall:
 	go clean -i
+
+bump:
+	bump
