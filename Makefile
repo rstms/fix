@@ -1,19 +1,14 @@
 #
 # go makefile
 #
-program != basename $(PWD)
-
-modules := . ./vimfix
-
-debug:
-	@echo program=$(program)
+#
 
 build: fmt
 	fix -- go build
 
 
 fmt:
-	fix -- go fmt $(modules)
+	fix -- go fmt ./...
 
 clean:
 	go clean .
@@ -32,4 +27,4 @@ uninstall:
 	go clean -i
 
 README.md:
-	@{ echo '# $(program)'; echo '```';./$(program) --help; echo '```'; } >$@
+	@{ echo '# $(notdir $(PWD))'; echo '```';./$(notdir $(PWD)) --help; echo '```'; } >$@

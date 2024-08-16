@@ -25,9 +25,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/rstms/fix/vimfix"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/rstms/fix/vimfix"
 )
 
 var cfgFile string
@@ -35,16 +35,16 @@ var version = "1.0.6"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "fix COMMAND [OPTS] [ARGS...]",
+	Use:     "fix COMMAND [OPTS] [ARGS...]",
 	Version: version,
-	Short: "vim quickfix exec",
+	Short:   "vim quickfix exec",
 	Long: `
 execute a command and offer to run vim in quickfix mode against any generated errors
 `,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-	    //fleem = "foo"
-	    os.Exit(vimfix.Fix(args[0], args[1:]...))
+		//fleem = "foo"
+		os.Exit(vimfix.Fix(args[0], args[1:]...))
 	},
 }
 
