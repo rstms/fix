@@ -1,7 +1,12 @@
 #
 # go makefile
 #
+program != basename $(PWD)
+
 modules := . ./vimfix
+
+debug:
+	@echo program=$(program)
 
 build: fmt
 	fix -- go build
@@ -26,5 +31,5 @@ install:
 uninstall:
 	go clean -i
 
-bump:
-	bump
+README.md:
+	@{ echo '# $(program)'; echo '```';./$(program) --help; echo '```'; } >$@

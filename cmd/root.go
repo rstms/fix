@@ -35,11 +35,11 @@ var version = "1.0.5"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "fix",
+	Use:   "fix COMMAND [OPTS] [ARGS...]",
 	Version: version,
-	Short: "vim quickfix compiler output",
+	Short: "vim quickfix exec",
 	Long: `
-run a compile or lint command, scanning the output output for errors suitable for input to vim quickfix"
+execute a command and offer to run vim in quickfix mode against any generated errors
 `,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
