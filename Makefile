@@ -31,3 +31,6 @@ uninstall:
 
 README.md:
 	@{ echo '# $(notdir $(PWD))'; echo '```';./$(notdir $(PWD)) --help; echo '```'; } >$@
+
+release:
+	gh release create v$(shell cat VERSION) --generate-notes --target master
