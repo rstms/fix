@@ -3,12 +3,15 @@
 #
 #
 
+GO = fix -- go
+#GO = go
+
 build: fmt
-	fix -- go build
+	$(GO) build
 
 
 fmt:
-	fix -- go fmt ./...
+	$(GO) fmt ./...
 
 clean:
 	go clean .
@@ -18,7 +21,7 @@ sterile: clean
 
 
 test: build
-	fix -- go test -v ./...
+	$(GO) test -v ./...
 
 install:
 	go install
