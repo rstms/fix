@@ -92,6 +92,9 @@ func isError(line string) bool {
 		return false
 	}
 	if strings.Contains(line, ":") {
+		if strings.HasPrefix(line, "go: downloading") {
+			return false
+		}
 		return true
 	}
 	return false
