@@ -35,7 +35,7 @@ var version = "1.0.10"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:     "fix COMMAND [OPTS] [ARGS...]",
+	Use:     "fix [[OPTS] --] COMMAND [COMMAND_OPTS] [COMMAND_ARGS...]",
 	Version: version,
 	Short:   "vim quickfix exec",
 	Long: `
@@ -43,13 +43,19 @@ execute a command and offer to run vim in quickfix mode against any generated er
 `,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		//fleem = "foo"
+		vimfix.Quiet = ViperGetBool("quiet")
+		vimfix.Verbose = ViperGetBool("verbose")
+		vimfix.IgnoreStderr = ViperGetBool("ignore_stderr")
+		vimfix.IgnoreStdout = ViperGetBool("ignore_stdout")
+		vimfix.LocalizePaths = ViperGetBool("localize")
+		vimfix.NoStripANSI = ViperGetBool("no_strip")
+		vimfix.PrioritizeExitCode = ViperGetBool("prioritize_exit_code")
+		vimfix.ErrorFormat = ViperGetString("error_format")
+		vimfix.OutputFile = ViperGetString("output_file")
 		os.Exit(vimfix.Fix(args[0], args[1:]...))
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -58,22 +64,15 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	rootCmd.Flags().BoolVarP(&vimfix.Quiet, "quiet", "q", false, "no echo stdout")
-	rootCmd.Flags().BoolVarP(&vimfix.Verbose, "verbose", "v", false, "output diagnostics to stderr")
-	rootCmd.Flags().BoolVarP(&vimfix.IgnoreStderr, "ignore-stderr", "E", false, "ignore stderr when scanning")
-	rootCmd.Flags().BoolVarP(&vimfix.IgnoreStdout, "ignore-stdout", "O", false, "ignore stdout when scanning")
-	rootCmd.Flags().BoolVarP(&vimfix.LocalizePaths, "localize", "l", false, "localize source file path in error output")
-	rootCmd.Flags().BoolVarP(&vimfix.NoStripANSI, "no-strip", "S", false, "do not strip ANSI codes")
-	rootCmd.Flags().BoolVarP(&vimfix.PrioritizeExitCode, "prioritize-exit-code", "x", false, "suppress prompt when command exits 0")
-	rootCmd.Flags().StringVarP(&vimfix.ErrorFormat, "format", "f", "", "error format")
-	rootCmd.Flags().StringVarP(&vimfix.OutputFile, "output", "o", "", "output to file")
-	viper.BindPFlag("format", rootCmd.Flags().Lookup("format"))
+	CobraInit(rootCmd)
+	OptionSwitch(rootCmd, "quiet", "q", "no echo stdout")
+	OptionSwitch(rootCmd, "ignore-stderr", "E", "ignore stderr when scanning")
+	OptionSwitch(rootCmd, "ignore-stdout", "O", "ignore stdout when scanning")
+	OptionSwitch(rootCmd, "localize", "l", "localize source file path in error output")
+	OptionSwitch(rootCmd, "no-strip", "S", "do not strip ANSI codes")
+	OptionSwitch(rootCmd, "prioritize-exit-code", "x", "suppress prompt when command exits 0")
+	OptionString(rootCmd, "format", "f", "", "error format")
+	OptionString(rootCmd, "output", "o", "", "output to file")
 }
 
 // initConfig reads in config file and ENV variables if set.
