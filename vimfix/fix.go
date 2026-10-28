@@ -198,11 +198,15 @@ func tryQuickfix(elines []string) int {
 		err := os.WriteFile(quickfixFile, []byte(strings.Join(elines, "\n")), 0600)
 		cobra.CheckErr(err)
 
-		editor, ok := os.LookupEnv("EDITOR")
-		if !ok {
-			editor, ok = os.LookupEnv("VISUAL")
+		editor := ViperGetString("editor")
+		if editor == "" {
+			var ok bool
+			editor, ok = os.LookupEnv("EDITOR")
 			if !ok {
-				editor = "vim"
+				editor, ok = os.LookupEnv("VISUAL")
+				if !ok {
+					editor = "vim"
+				}
 			}
 		}
 		fmt.Printf("calling %s...\n", editor)
